@@ -19,6 +19,9 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE,  makeFinal = true)
 public class TypeService {
     TypeRepo typeRepo;
+    public boolean isExistByTypeName(String type){
+        return typeRepo.existsByType(type);
+    }
     public TypeResponse addType(TypeRequest typeRequest) {
         return toTypeResponse(typeRepo.save(toType(typeRequest)));
     }

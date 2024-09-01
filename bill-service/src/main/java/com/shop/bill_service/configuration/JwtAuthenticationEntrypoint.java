@@ -1,8 +1,8 @@
-package com.shop.inventory_service.configuration;
+package com.shop.bill_service.configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.shop.inventory_service.dto.ApiResponse;
-import com.shop.inventory_service.exception.ErrorCode;
+import com.shop.bill_service.dto.ApiResponse;
+import com.shop.bill_service.exception.ErrorCode;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

@@ -1,4 +1,4 @@
-package com.shop.inventory_service.configuration;
+package com.shop.bill_service.configuration;
 
 
 import org.springframework.context.annotation.Bean;
@@ -16,7 +16,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableMethodSecurity
 @EnableJpaAuditing
 public class SecurityConfig {
-    private final static String[] publicUrl = {"/inventoary/**"};
+    private final static String[] publicUrl = {"/internal/**"};
     private final CustomJwtDecoder customJwtDecoder;
     public SecurityConfig(CustomJwtDecoder customJwtDecoder){
         this.customJwtDecoder = customJwtDecoder;

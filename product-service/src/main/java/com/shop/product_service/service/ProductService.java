@@ -2,6 +2,7 @@ package com.shop.product_service.service;
 
 import com.shop.product_service.dto.ProductRequest;
 import com.shop.product_service.dto.ProductResponse;
+import com.shop.product_service.dto.TypeRequest;
 import com.shop.product_service.dto.TypeResponse;
 import com.shop.product_service.entity.Product;
 import com.shop.product_service.entity.Type;
@@ -46,6 +47,11 @@ public class ProductService {
         return  productRepo.findById(id).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTED));
     }
     public ProductResponse newProduct(ProductRequest request) throws AppException {
+        for(TypeRequest typeRequest : request.getTypes()){
+            if(typeService.isExistByTypeName(typeRequest.getType())){
+                typeService.addType(typeRequest);
+            }
+        }
         return toProductResponse(addProduct(request));
     }
     public Product addProduct(ProductRequest request) throws AppException {
