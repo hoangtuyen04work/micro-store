@@ -1,8 +1,6 @@
 package com.shop.inventory_service.controller;
 
-import com.shop.inventory_service.dto.ApiResponse;
-import com.shop.inventory_service.dto.InventoryRequest;
-import com.shop.inventory_service.dto.InventoryResponse;
+import com.shop.inventory_service.dto.*;
 import com.shop.inventory_service.service.InventoryService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -17,31 +15,35 @@ import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@RequestMapping("/inventory")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE,  makeFinal = true)
 public class InventoryController {
     InventoryService inventoryService;
-
-    @PostMapping()
+    @PostMapping("/buy")
+    public ApiResponse<Boolean> buy(@RequestBody List<ProductCheck> checks){
+        return ApiResponse.<Boolean>builder()
+                .data(inventoryService.check(checks))
+                .build();
+    }
+    @PostMapping("/inventory")
     public ApiResponse<InventoryResponse> addInventory(@RequestBody InventoryRequest inventory) {
         return ApiResponse.<InventoryResponse>builder()
                 .data(inventoryService.addInventory(inventory))
                 .build();
     }
-    @PutMapping()
+    @PutMapping("/inventory")
     public ApiResponse<InventoryResponse> updateInventory(@RequestBody InventoryRequest inventory) {
         return  ApiResponse.<InventoryResponse>builder()
                 .data(inventoryService.updateInventory(inventory))
                 .build();
     }
-    @GetMapping("/all")
+    @GetMapping("/inventory/all")
     public ApiResponse<List<InventoryResponse>> getAll(){
         return ApiResponse.<List<InventoryResponse>>builder()
                 .data(inventoryService.getAllInventory())
                 .build();
     }
-    @GetMapping()
+    @GetMapping("/inventory")
     public ApiResponse<Page<InventoryResponse>> find(@RequestParam(required = false) String id,
                                                      @RequestParam(required = false) String name,
                                                      @RequestParam(required = false) String category,

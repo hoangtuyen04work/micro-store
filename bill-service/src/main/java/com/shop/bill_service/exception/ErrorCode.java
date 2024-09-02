@@ -18,6 +18,7 @@ public enum ErrorCode {
     COMMENT_NOT_EXISTED(409, HttpStatus.BAD_REQUEST),
     ROLE_NOT_EXISTED(410, HttpStatus.BAD_REQUEST),
     CANNOT_SEND_EMAIL(412, HttpStatus.BAD_REQUEST),
+    PRODUCT_OUT_OF_STOCK(413, HttpStatus.BAD_REQUEST)
     ;
 
     ErrorCode(int code, HttpStatusCode statusCode) {

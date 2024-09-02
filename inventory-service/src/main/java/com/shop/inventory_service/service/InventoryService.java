@@ -17,8 +17,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
-
-import java.lang.reflect.Type;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +28,20 @@ public class InventoryService {
     InventoryRepo inventoryRepo;
     MongoTemplate mongoTemplate;
     ProductClient productClient;
+
+    public Boolean check(List<ProductCheck> checks){
+        for(ProductCheck check : checks){
+            Query query = new Query();
+            query.addCriteria(Criteria.where("id").is(check.getId()));
+            Inventory inventory = (Inventory) mongoTemplate.find(query, Inventory.class);
+            if(inventory.getQuantity() == null || inventory.getQuantity() < check.getNumber()){
+                return false;
+            }
+            inventory.setQuantity(inventory.getQuantity() - check.getNumber());
+            mongoTemplate.save(inventory);
+        }
+        return true;
+    }
     public List<InventoryResponse> getAllInventory() {
         List<Inventory> inventory = inventoryRepo.findAll();
         List<InventoryResponse> inventoryResponses = new ArrayList<>();
