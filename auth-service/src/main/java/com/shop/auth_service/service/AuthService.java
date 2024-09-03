@@ -5,9 +5,11 @@ import com.shop.auth_service.dto.*;
 import com.shop.auth_service.exception.AppException;
 import com.shop.auth_service.exception.ErrorCode;
 import com.shop.auth_service.repository.httpclient.NotificationClient;
+import com.shop.event.SendEmailRequest;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
@@ -19,6 +21,7 @@ public class AuthService {
     TokenService tokenService;
     UserService userService;
     NotificationClient notificationClient;
+    KafkaTemplate<String, SendEmailRequest> kafkaTemplate;
     public AuthResponse authenticate(AuthRequest authRequest) throws AppException, ParseException, JOSEException {
         tokenService.checkToken(authRequest.getToken());
         return AuthResponse.builder()
@@ -50,9 +53,15 @@ public class AuthService {
     public AuthResponse signupWithEmail(AuthRequest authRequest) throws AppException, ParseException, JOSEException {
         if(userService.existsByEmail(authRequest.getEmail()))
             throw new AppException(ErrorCode.USER_EXISTED);
+        try{
+            kafkaTemplate.send("kafka-test-v1", notification(authRequest.getEmail()));
+        }
+        catch (Exception e){
+            throw new AppException(ErrorCode.BAD_SERVER);
+        }
+        kafkaTemplate.send("kafka-test-v1", notification(authRequest.getEmail()));
         UserResponse user = userService.createUserByEmail(authRequest.getUserName(), authRequest.getEmail(), authRequest.getPassword());
         String token = tokenService.generateToken(user, false);
-        notificationClient.emailWelcome(notification(authRequest.getEmail()));
         return AuthResponse.builder()
                 .refreshToken("refresh")
                 .token(token)
@@ -67,8 +76,8 @@ public class AuthService {
                 .token(tokenService.generateToken(user, false))
                 .build();
     }
-    public NotificationRequest notification(String email){
-        return NotificationRequest.builder()
+    public SendEmailRequest notification(String email){
+        return SendEmailRequest.builder()
                 .to(EmailObject.builder()
                         .email(email)
                         .name("HTShop")

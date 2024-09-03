@@ -3,7 +3,7 @@ package com.shop.notification_service.service;
 import com.shop.notification_service.dto.EmailObject;
 import com.shop.notification_service.dto.EmailRequest;
 import com.shop.notification_service.dto.EmailResponse;
-import com.shop.notification_service.dto.SendEmailRequest;
+import com.shop.event.SendEmailRequest;
 import com.shop.notification_service.entity.SendEmail;
 import com.shop.notification_service.exception.AppException;
 import com.shop.notification_service.exception.ErrorCode;
@@ -53,8 +53,10 @@ public class NotificationService {
                     .messageId(response.getMessageId())
                     .build();
             sendEmailRepo.save(sendEmail);
+            System.err.println("SendEmailController: notifyWelcome");
             return response;
         } catch (Exception e) {
+            System.err.println(e);
             throw new AppException(ErrorCode.CANNOT_SEND_EMAIL);
         }
     }

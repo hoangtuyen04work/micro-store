@@ -1,14 +1,15 @@
-package com.shop.notification_service.dto;
+package com.shop.event;
 
+import com.shop.auth_service.dto.EmailObject;
 import lombok.*;
 
+@Builder
 @Getter
 @Setter
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class SendEmailRequest {
     private EmailObject to;
-    private String subject;
     private String htmlContent;
+    private String subject;
 }

@@ -5,7 +5,7 @@ server:
 notification:
   email:
     brevo-url: https://api.brevo.com
-    brevo-apikey: "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"
+    brevo-apikey: "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"
     sender: "hoanghuutuyen060204@gmail.com"
     name: "HTShop"
 spring:
@@ -17,4 +17,19 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+  kafka:
+    bootstrap-servers: localhost:9094
+    consumer:
+      group-id: notify-email-welcome-v1
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+        spring.kafka.consumer.properties.spring.json.trusted.packages: com.shop.event
+#    producer:
+#      bootstrap-servers: localhost:9092
+#      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+#      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
 

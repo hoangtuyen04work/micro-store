@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatusCode;
 
 @Getter
 public enum ErrorCode {
-
+    BAD_SERVER(400, HttpStatus.BAD_REQUEST),
     USER_EXISTED(401,  HttpStatus.BAD_REQUEST),
     USER_NOT_EXISTED(401, HttpStatus.BAD_REQUEST),
     WRONG_PASSWORD_OR_USERNAME(403, HttpStatus.BAD_REQUEST),
@@ -17,6 +17,7 @@ public enum ErrorCode {
     POST_NOT_FOUND(408, HttpStatus.NOT_FOUND),
     COMMENT_NOT_EXISTED(409, HttpStatus.BAD_REQUEST),
     ROLE_NOT_EXISTED(410, HttpStatus.BAD_REQUEST),
+    CANNOT_SEND_EMAIL(412, HttpStatus.BAD_REQUEST),
     ;
 
     ErrorCode(int code, HttpStatusCode statusCode) {
