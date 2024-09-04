@@ -42,9 +42,12 @@ public class TypeService {
     public List<Type> getTypes(List<TypeRequest> typeRequests) throws AppException {
         List<Type> types = new ArrayList<>();
         for (TypeRequest typeRequest : typeRequests) {
-            types.add(getTypeById(typeRequest.getId()));
+            types.add(getTypeByType(typeRequest.getType()));
         }
         return types;
+    }
+    public Type getTypeByType(String type){
+        return typeRepo.findByTypeName(type);
     }
     public List<TypeResponse> getTypeResponsesFromRequests(List<TypeRequest> typeRequests) throws AppException {
         List<Type> types = getTypes(typeRequests);
@@ -54,7 +57,7 @@ public class TypeService {
         }
         return typeResponses;
     }
-    public List<TypeResponse> getTypeResponses(List<Type> types) throws AppException {
+    public List<TypeResponse> getTypeResponses(List<Type> types){
         List<TypeResponse> typeResponses = new ArrayList<>();
         for (Type type : types) {
             typeResponses.add(toTypeResponse(type));

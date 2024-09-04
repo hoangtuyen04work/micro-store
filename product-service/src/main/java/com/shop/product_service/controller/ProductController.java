@@ -3,10 +3,11 @@ package com.shop.product_service.controller;
 import com.shop.product_service.dto.*;
 import com.shop.product_service.exception.AppException;
 import com.shop.product_service.service.ProductService;
-import com.shop.product_service.service.TypeService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -34,6 +35,19 @@ public class ProductController {
                 .data(productService.updateProduct(productRequest))
                 .build();
     }
+    @GetMapping("/find")
+    public ApiResponse<PageResponse<ProductResponse>> findProduct(@RequestParam(required = false) String name,
+                                                                  @RequestParam(defaultValue = "1") Integer page,
+                                                                  @RequestParam(defaultValue = "5") Integer size,
+                                                                  @RequestParam(required = false) String sort,
+                                                                  @RequestParam(required = false) String code){
+        Pageable pageable = PageRequest.of(page - 1, size);
+        return ApiResponse.<PageResponse<ProductResponse>>builder()
+                .data(productService.find(name, code, pageable))
+                .build();
+    }
+
+
     @GetMapping("/product/all")
     public ApiResponse<List<ProductResponse>> getAllProducts() throws AppException {
         return  ApiResponse.<List<ProductResponse>>builder()

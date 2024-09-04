@@ -28,7 +28,7 @@ public class Product {
     private LocalDate  productionDate;
     private LocalDate expirationDate;
     @JoinTable(
-            name = "user_roles",
+            name = "product_type",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
