@@ -54,7 +54,7 @@ public class InventoryService {
     public InventoryResponse findById(String id) throws AppException {
         return toInventoryResponse(inventoryRepo.findById(id).orElseThrow(()-> new AppException(ErrorCode.INVALID_INPUT)));
     }
-    public Page<InventoryResponse> find(String id, String name, String category, Long quantity, Long quantityStart,
+    public PageResponse<InventoryResponse> find(String id, String name, String category, Long quantity, Long quantityStart,
                                         Long quantityEnd, LocalDate importDate, LocalDate importDateStart, LocalDate importDateEnd,
                                         LocalDate productDate, LocalDate productDateStart, LocalDate productDateEnd,
                                         LocalDate expiryDate, LocalDate expiryDateStart, LocalDate expiryDateEnd,
@@ -114,11 +114,19 @@ public class InventoryService {
                     .lte(costPerProductEnd != null ? costPerProductEnd : 1000000000L);
         }
         query.addCriteria(criteria);
+        query.with(pageable);
         Page<Inventory> inventories = PageableExecutionUtils.getPage(
                 mongoTemplate.find(query, Inventory.class),
                 pageable, ()->mongoTemplate.count(query.skip(0).limit(0), Inventory.class)
         );
-        return inventories.map(this::toInventoryResponse);
+        Page<InventoryResponse> responses = inventories.map(this::toInventoryResponse);
+        return PageResponse.<InventoryResponse>builder()
+                .content(responses.getContent())
+                .pageNumber(responses.getNumber())
+                .pageSize(responses.getSize())
+                .totalElements(responses.getTotalElements())
+                .totalPages(responses.getTotalPages())
+                .build();
     }
 
     public List<InventoryResponse> findByName(String name){

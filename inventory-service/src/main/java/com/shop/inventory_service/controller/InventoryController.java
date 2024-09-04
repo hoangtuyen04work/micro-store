@@ -44,7 +44,7 @@ public class InventoryController {
                 .build();
     }
     @GetMapping("/inventory")
-    public ApiResponse<Page<InventoryResponse>> find(@RequestParam(required = false) String id,
+    public ApiResponse<PageResponse<InventoryResponse>> find(@RequestParam(required = false) String id,
                                                      @RequestParam(required = false) String name,
                                                      @RequestParam(required = false) String category,
                                                      @RequestParam(required = false) Long quantity,
@@ -66,11 +66,11 @@ public class InventoryController {
                                                      @RequestParam(required = false) Long costPerProductStart,
                                                      @RequestParam(required = false) Long costPerProductEnd,
                                                      @RequestParam(required = false) String code,
-                                                     @RequestParam(defaultValue = "0") Integer page,
+                                                     @RequestParam(defaultValue = "1") Integer page,
                                                      @RequestParam(defaultValue =  "5") Integer size,
                                                      @RequestParam(required = false) String productId){
-        Pageable pageable = PageRequest.of(page, size);
-        return ApiResponse.<Page<InventoryResponse>>builder()
+        Pageable pageable = PageRequest.of(page - 1, size);
+        return ApiResponse.<PageResponse<InventoryResponse>>builder()
                 .data(inventoryService.find(id, name, category, quantity, quantityStart, quantityEnd,
                         importDate, importDateStart, importDateEnd, productDate, productDateStart, productDateEnd,
                         expiryDate, expiryDateStart, expiryDateEnd, totalCost, totalCostStart, totalCostEnd,
