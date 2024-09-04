@@ -28,6 +28,18 @@ spring:
             - Path=${app.api-prefix}/product/**
           filters:
             - StripPrefix=2
+        - id: bill_service
+          uri: http://localhost:8085
+          predicates:
+            - Path=${app.api-prefix}/bill/**
+          filters:
+            - StripPrefix=2
+        - id: inventory_service
+          uri: http://localhost:8081
+          predicates:
+            - Path=${app.api-prefix}/inventory/**
+          filters:
+            - StripPrefix=2
 
 
 

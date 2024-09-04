@@ -14,9 +14,8 @@ public class KafkaController {
     private static final Logger log = LoggerFactory.getLogger(KafkaController.class);
     @Autowired
     private NotificationService notificationService;
-    @KafkaListener(topics = "kafka-test-v1", groupId = "notify-email-welcome")
+    @KafkaListener(topics = "auth-signup", groupId = "notify-email-welcome")
     public void consumer(SendEmailRequest request) throws AppException {
-        log.info("This is log: {}");
         notificationService.sendEmail(request);
     }
 }

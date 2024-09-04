@@ -41,7 +41,7 @@ public class AuthService {
                 .token(tokenService.generateToken(user, false))
                 .build();
     }
-    public AuthResponse loginWithPhone(AuthRequest authRequest) throws AppException, ParseException, JOSEException {
+    public AuthResponse loginWithPhone(AuthRequest authRequest) throws AppException, JOSEException {
         if(!userService.existsByPhoneNumber(authRequest.getPhoneNumber()))
             throw new AppException(ErrorCode.USER_NOT_EXISTED);
         UserResponse user = userService.getUserByPhone(authRequest.getPhoneNumber(), authRequest.getPassword());
@@ -50,11 +50,11 @@ public class AuthService {
                 .token(tokenService.generateToken(user, false))
                 .build();
     }
-    public AuthResponse signupWithEmail(AuthRequest authRequest) throws AppException, ParseException, JOSEException {
+    public AuthResponse signupWithEmail(AuthRequest authRequest) throws AppException, JOSEException {
         if(userService.existsByEmail(authRequest.getEmail()))
             throw new AppException(ErrorCode.USER_EXISTED);
         try{
-            kafkaTemplate.send("kafka-test-v1", notification(authRequest.getEmail()));
+            kafkaTemplate.send("auth-signup", notification(authRequest.getEmail()));
         }
         catch (Exception e){
             throw new AppException(ErrorCode.BAD_SERVER);
