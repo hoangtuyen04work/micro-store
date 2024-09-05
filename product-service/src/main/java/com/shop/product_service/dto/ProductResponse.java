@@ -24,4 +24,5 @@ public class ProductResponse {
     private Timestamp addAt;
     private LocalDate  expirationDate;
     private List<TypeResponse> types = new ArrayList<>();
+    private String urlImg;
 }

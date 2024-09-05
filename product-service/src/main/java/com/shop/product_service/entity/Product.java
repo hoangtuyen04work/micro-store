@@ -27,6 +27,7 @@ public class Product {
     private String description;
     private LocalDate  productionDate;
     private LocalDate expirationDate;
+    private String urlImg;
     @JoinTable(
             name = "product_type",
             joinColumns = @JoinColumn(name = "user_id"),

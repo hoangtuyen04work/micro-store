@@ -44,7 +44,7 @@ public class TokenService {
         return tokenRepo.save(invalidatedToken);
     }
 
-    public void disableToken(AuthRequest authRequest) throws AppException, ParseException, JOSEException {
+    public void disableToken(AuthRequest authRequest) throws AppException, ParseException {
         SignedJWT signedJWT = verifyToken(authRequest.getToken());
         String jit = signedJWT.getJWTClaimsSet().getJWTID();
         Token invalidToken =
@@ -56,7 +56,7 @@ public class TokenService {
         return tokenRepo.existsByToken(token);
     }
 
-    public boolean checkToken(String token) throws AppException, ParseException, JOSEException {
+    public boolean checkToken(String token) throws AppException, JOSEException {
         verifyToken(token);
         return true;
     }
@@ -67,7 +67,7 @@ public class TokenService {
             SignedJWT signedJWT = SignedJWT.parse(token);
             Date expiryTime =   signedJWT.getJWTClaimsSet().getExpirationTime();
             boolean verified = signedJWT.verify(verifier);
-            if(!(verified && expiryTime.after(new Date()))){
+            if(!verified || expiryTime.after(new Date())){
                 throw new AppException(ErrorCode.NOT_AUTHENTICATED);
             }
 //            if (invalidatedToken.existsById(signedJWT.getJWTClaimsSet().getJWTID())){

@@ -55,7 +55,7 @@ public class ProductController {
                 .build();
     }
     @PostMapping("/product/new")
-    public ApiResponse<ProductResponse> newProduct(@RequestBody ProductRequest productRequest) throws AppException {
+    public ApiResponse<ProductResponse> newProduct(@ModelAttribute ProductRequest productRequest) throws AppException {
         return ApiResponse.<ProductResponse>builder()
                 .data(productService.newProduct(productRequest))
                 .build();

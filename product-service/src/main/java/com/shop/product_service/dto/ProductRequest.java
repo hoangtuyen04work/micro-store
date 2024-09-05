@@ -1,9 +1,8 @@
 package com.shop.product_service.dto;
 
-import com.shop.product_service.entity.Type;
 import lombok.*;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -21,4 +20,5 @@ public class ProductRequest {
     private LocalDate productionDate;
     private List<TypeRequest> types;
     private LocalDate  expirationDate;
+    private MultipartFile image;
 }

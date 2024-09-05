@@ -5,10 +5,10 @@ import com.shop.product_service.entity.Product;
 import com.shop.product_service.entity.Type;
 import com.shop.product_service.exception.AppException;
 import com.shop.product_service.exception.ErrorCode;
+import com.shop.product_service.repository.AmazonS3Client;
 import com.shop.product_service.repository.ProductRepo;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +24,7 @@ import java.util.List;
 public class ProductService {
     ProductRepo productRepo;
     TypeService typeService;
+    AmazonS3Client amazonS3Client;
     public PageResponse<ProductResponse> find(String name, String code, Pageable pageable) {
         Page<Product> result = productRepo.find(name, code, pageable);
         Page<ProductResponse> responses = result.map(this::toProductResponse);
@@ -67,6 +68,9 @@ public class ProductService {
     }
     public Product addProduct(ProductRequest request) throws AppException {
         Product product = toProduct(request);
+        if(request.getImage() != null){
+            product.setUrlImg(amazonS3Client.uploadFile(request.getImage()));
+        }
         product.setAddAt(new Timestamp(System.currentTimeMillis()));
         return productRepo.save(product);
     }
@@ -102,6 +106,7 @@ public class ProductService {
         return ProductResponse.builder()
                 .types(types)
                 .id(request.getId())
+                .urlImg(request.getUrlImg() != null ? request.getUrlImg() : "")
                 .price(request.getPrice())
                 .addAt(request.getAddAt())
                 .productionDate(request.getProductionDate())
