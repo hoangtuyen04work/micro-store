@@ -16,6 +16,7 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
+@EntityListeners(ProductListener.class)
 @AllArgsConstructor
 public class Product {
     @Id

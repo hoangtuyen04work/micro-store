@@ -5,7 +5,7 @@ server:
 notification:
   email:
     brevo-url: https://api.brevo.com
-    brevo-apikey: "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"
+    brevo-apikey: "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"
     sender: "hoanghuutuyen060204@gmail.com"
     name: "HTShop"
 spring:

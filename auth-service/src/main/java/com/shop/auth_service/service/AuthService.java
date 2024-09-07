@@ -2,9 +2,9 @@ package com.shop.auth_service.service;
 
 import com.nimbusds.jose.JOSEException;
 import com.shop.auth_service.dto.*;
+import com.shop.auth_service.entity.Token;
 import com.shop.auth_service.exception.AppException;
 import com.shop.auth_service.exception.ErrorCode;
-import com.shop.auth_service.repository.httpclient.NotificationClient;
 import com.shop.event.SendEmailRequest;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -20,61 +20,56 @@ import java.text.ParseException;
 public class AuthService {
     TokenService tokenService;
     UserService userService;
-    NotificationClient notificationClient;
     KafkaTemplate<String, SendEmailRequest> kafkaTemplate;
-    public AuthResponse authenticate(AuthRequest authRequest) throws AppException, ParseException, JOSEException {
+
+    public boolean authenticate(AuthRequest authRequest) throws AppException {
         tokenService.checkToken(authRequest.getToken());
+        return tokenService.isTokenValid(authRequest.getToken());
+    }
+    public AuthResponse generateAuthResponse(UserResponse userResponse) throws JOSEException {
+        Token token = tokenService.generateToken(userResponse);
+        tokenService.save(token);
         return AuthResponse.builder()
-                .token(authRequest.getToken())
-                .isValid(true)
+                .refreshToken(token.getRefreshToken())
+                .token(token.getToken())
                 .build();
     }
-    public void logout(AuthRequest authRequest) throws AppException, ParseException, JOSEException {
-        tokenService.disableToken(authRequest);
+    public AuthResponse refreshToken(RefreshTokenRequest request) throws AppException, ParseException, JOSEException {
+        boolean isOk = tokenService.isRefreshTokenValid(request.getRefreshToken());
+        if(!isOk){
+            throw new AppException(ErrorCode.REFRESH_TOKEN_INVALID);
+        }
+        Token token = tokenService.getTokenByRefreshToken(request.getRefreshToken());
+        tokenService.deleteToken(token);
+        return generateAuthResponse(userService.getUserByToken(token.getToken()));
+    }
+    public void logout(TokenRequest request) {
+        tokenService.deleteToken(request);
     }
     public AuthResponse loginWithEmail(AuthRequest authRequest) throws AppException, ParseException, JOSEException {
         if(!userService.existsByEmail(authRequest.getEmail()))
             throw new AppException(ErrorCode.USER_NOT_EXISTED);
         UserResponse user = userService.getUserByEmail(authRequest.getEmail(), authRequest.getPassword());
-        return AuthResponse.builder()
-                .refreshToken("refresh")
-                .token(tokenService.generateToken(user, false))
-                .build();
+        return generateAuthResponse(user);
     }
     public AuthResponse loginWithPhone(AuthRequest authRequest) throws AppException, JOSEException {
         if(!userService.existsByPhoneNumber(authRequest.getPhoneNumber()))
             throw new AppException(ErrorCode.USER_NOT_EXISTED);
         UserResponse user = userService.getUserByPhone(authRequest.getPhoneNumber(), authRequest.getPassword());
-        return AuthResponse.builder()
-                .refreshToken("refresh")
-                .token(tokenService.generateToken(user, false))
-                .build();
+        return generateAuthResponse(user);
     }
     public AuthResponse signupWithEmail(AuthRequest authRequest) throws AppException, JOSEException {
         if(userService.existsByEmail(authRequest.getEmail()))
             throw new AppException(ErrorCode.USER_EXISTED);
-        try{
-            kafkaTemplate.send("auth-signup", notification(authRequest.getEmail()));
-        }
-        catch (Exception e){
-            throw new AppException(ErrorCode.BAD_SERVER);
-        }
-        kafkaTemplate.send("kafka-test-v1", notification(authRequest.getEmail()));
+        kafkaTemplate.send("auth-signup", notification(authRequest.getEmail()));
         UserResponse user = userService.createUserByEmail(authRequest.getUserName(), authRequest.getEmail(), authRequest.getPassword());
-        String token = tokenService.generateToken(user, false);
-        return AuthResponse.builder()
-                .refreshToken("refresh")
-                .token(token)
-                .build();
+        return generateAuthResponse(user);
     }
     public AuthResponse signupWithPhone(AuthRequest authRequest) throws AppException, ParseException, JOSEException {
         if(userService.existsByPhoneNumber(authRequest.getPhoneNumber()))
             throw new AppException(ErrorCode.USER_EXISTED);
         UserResponse user = userService.createUserByPhone(authRequest.getUserName(), authRequest.getPhoneNumber(), authRequest.getPassword());
-        return AuthResponse.builder()
-                .refreshToken("refresh")
-                .token(tokenService.generateToken(user, false))
-                .build();
+        return generateAuthResponse(user);
     }
     public SendEmailRequest notification(String email){
         return SendEmailRequest.builder()

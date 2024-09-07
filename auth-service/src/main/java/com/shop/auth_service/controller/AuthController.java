@@ -1,12 +1,9 @@
 package com.shop.auth_service.controller;
 
 import com.nimbusds.jose.JOSEException;
-import com.shop.auth_service.dto.ApiResponse;
-import com.shop.auth_service.dto.AuthRequest;
-import com.shop.auth_service.dto.AuthResponse;
+import com.shop.auth_service.dto.*;
 import com.shop.auth_service.exception.AppException;
 import com.shop.auth_service.service.AuthService;
-import com.shop.auth_service.service.UserService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -22,9 +19,15 @@ import java.text.ParseException;
 public class AuthController {
     AuthService authService;
 
+    @PostMapping("/refreshToken")
+    public ApiResponse<AuthResponse> refreshToken(@RequestBody RefreshTokenRequest refreshToken) throws AppException, ParseException, JOSEException {
+        return  ApiResponse.<AuthResponse>builder()
+                .data(authService.refreshToken(refreshToken))
+                .build();
+    }
     @PostMapping("/authenticate")
-    public ApiResponse<AuthResponse> authenticate(@RequestBody AuthRequest authRequest) throws AppException, ParseException, JOSEException {
-        return ApiResponse.<AuthResponse>builder()
+    public ApiResponse<Boolean> authenticate(@RequestBody AuthRequest authRequest) throws AppException {
+        return ApiResponse.<Boolean>builder()
                 .data(authService.authenticate(authRequest))
                 .build();
     }
@@ -35,13 +38,13 @@ public class AuthController {
                 .build();
     }
     @PostMapping("/signup/email")
-    public ApiResponse<AuthResponse> signupByEmail(@RequestBody AuthRequest authRequest) throws AppException, ParseException, JOSEException {
+    public ApiResponse<AuthResponse> signupByEmail(@RequestBody AuthRequest authRequest) throws AppException, JOSEException {
         return ApiResponse.<AuthResponse>builder()
                 .data(authService.signupWithEmail(authRequest))
                 .build();
     }
     @PostMapping("/login/phone")
-    public ApiResponse<AuthResponse> loginByPhoneNumber(@RequestBody AuthRequest authRequest) throws AppException, ParseException, JOSEException {
+    public ApiResponse<AuthResponse> loginByPhoneNumber(@RequestBody AuthRequest authRequest) throws AppException, JOSEException {
         return ApiResponse.<AuthResponse>builder()
                 .data(authService.loginWithPhone(authRequest))
                 .build();
@@ -52,9 +55,9 @@ public class AuthController {
                 .data(authService.loginWithEmail(authRequest))
                 .build();
     }
-    @PostMapping("/logout")
-    public ApiResponse<Boolean> logout(@RequestBody AuthRequest authRequest) throws AppException, ParseException, JOSEException {
-        authService.logout(authRequest);
+    @PostMapping("/logoutt")
+    public ApiResponse<Boolean> logout(@RequestBody TokenRequest request) {
+        authService.logout(request);
         return ApiResponse.<Boolean>builder()
                 .data(true)
                 .build();

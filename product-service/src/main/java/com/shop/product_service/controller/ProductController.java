@@ -1,7 +1,9 @@
 package com.shop.product_service.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.shop.product_service.dto.*;
 import com.shop.product_service.exception.AppException;
+import com.shop.product_service.service.ProductRedisService;
 import com.shop.product_service.service.ProductService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +19,7 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE,  makeFinal = true)
 public class ProductController {
     ProductService productService;
+    ProductRedisService productRedisService;
     @DeleteMapping("/product/delete/id/{id}")
     public ApiResponse<Boolean> deleteProduct(@PathVariable String id) throws AppException {
         return ApiResponse.<Boolean>builder()
@@ -40,10 +43,13 @@ public class ProductController {
                                                                   @RequestParam(defaultValue = "1") Integer page,
                                                                   @RequestParam(defaultValue = "5") Integer size,
                                                                   @RequestParam(required = false) String sort,
-                                                                  @RequestParam(required = false) String code){
+                                                                  @RequestParam(required = false) String code) throws JsonProcessingException {
         Pageable pageable = PageRequest.of(page - 1, size);
         return ApiResponse.<PageResponse<ProductResponse>>builder()
-                .data(productService.find(name, code, pageable))
+                .data(productRedisService.find(name, code, pageable) != null ?
+                        productRedisService.find(name, code, pageable)
+                        :
+                        productService.find(name, code, pageable))
                 .build();
     }
 

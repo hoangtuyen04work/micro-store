@@ -1,5 +1,6 @@
 package com.shop.product_service.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.shop.product_service.dto.*;
 import com.shop.product_service.entity.Product;
 import com.shop.product_service.entity.Type;
@@ -13,7 +14,6 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,16 +25,19 @@ public class ProductService {
     ProductRepo productRepo;
     TypeService typeService;
     AmazonS3Client amazonS3Client;
-    public PageResponse<ProductResponse> find(String name, String code, Pageable pageable) {
+    ProductRedisService productRedisService;
+    public PageResponse<ProductResponse> find(String name, String code, Pageable pageable) throws JsonProcessingException {
         Page<Product> result = productRepo.find(name, code, pageable);
         Page<ProductResponse> responses = result.map(this::toProductResponse);
-        return PageResponse.<ProductResponse>builder()
+        PageResponse<ProductResponse> pageResponse = PageResponse.<ProductResponse>builder()
                 .content(responses.getContent())
                 .pageNumber(responses.getNumber())
                 .pageSize(responses.getSize())
                 .totalElements(responses.getTotalElements())
                 .totalPages(responses.getTotalPages())
                 .build();
+        productRedisService.saveFindProduct(pageResponse, name, code, pageable);
+        return pageResponse;
     }
     public List<ProductResponse> findProductByName(String name) throws AppException {
         List<Product> products = productRepo.findByNameContaining(name);
@@ -88,6 +91,7 @@ public class ProductService {
         productRepo.deleteByCode(code);
         return true;
     }
+
     private Product toProduct(ProductRequest request) throws AppException {
         List<Type> types = typeService.getTypes(request.getTypes());
         return Product.builder()

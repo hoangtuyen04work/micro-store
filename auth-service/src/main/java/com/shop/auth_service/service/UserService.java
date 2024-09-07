@@ -12,6 +12,7 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.text.ParseException;
 import java.util.Collections;
 
 @RequiredArgsConstructor
@@ -21,7 +22,10 @@ public class UserService {
     PasswordEncoder passwordEncoder;
     UserRepo userRepo;
     RoleService roleService;
-
+    TokenService tokenService;
+    public UserResponse getUserByToken(String token) throws ParseException, AppException {
+        return toResponse(userRepo.findById(tokenService.getUserIdByToken(token)).orElseThrow());
+    }
     public boolean existsByEmail(String email) {
         return userRepo.existsByEmail(email);
     }

@@ -3,11 +3,10 @@ package com.shop.auth_service.service;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jwt.JWTClaimsSet;
-import com.shop.auth_service.dto.AuthRequest;
+import com.shop.auth_service.dto.TokenRequest;
 import com.shop.auth_service.dto.UserResponse;
 import com.shop.auth_service.entity.Role;
 import com.shop.auth_service.entity.Token;
-import com.shop.auth_service.entity.User;
 import com.shop.auth_service.exception.AppException;
 import com.shop.auth_service.exception.ErrorCode;
 import com.shop.auth_service.repository.TokenRepo;
@@ -40,23 +39,40 @@ public class TokenService {
     String SIGNER_KEY;
     TokenRepo tokenRepo;
 
-    public Token save(Token invalidatedToken) {
-        return tokenRepo.save(invalidatedToken);
+    public Token getTokenByRefreshToken(String refreshToken){
+        return tokenRepo.findByRefreshToken(refreshToken);
     }
-
-    public void disableToken(AuthRequest authRequest) throws AppException, ParseException {
-        SignedJWT signedJWT = verifyToken(authRequest.getToken());
-        String jit = signedJWT.getJWTClaimsSet().getJWTID();
-        Token invalidToken =
-                Token.builder().id(jit).build();
-        save(invalidToken);
+    public boolean isRefreshTokenExisted(String refreshToken){
+        return tokenRepo.existByRefreshToken(refreshToken);
+    }
+    public boolean isRefreshTokenValid(String refreshToken){
+        if(!isRefreshTokenExisted(refreshToken)) return false;
+        Token token = getTokenByRefreshToken(refreshToken);
+        if(token.getExpiry_time().before(new Date())) return false;
+        return tokenRepo.findByRefreshToken(refreshToken) != null;
+    }
+    public void save(Token token) {
+        tokenRepo.save(token);
+    }
+    public void deleteToken(Token token){
+        tokenRepo.delete(token);
+    }
+    public void deleteToken(String token){
+        tokenRepo.deleteByToken(token);
+    }
+    public void deleteToken(TokenRequest request){
+        deleteToken(request.getToken());
+    }
+    public String getUserIdByToken(String token) throws ParseException {
+        SignedJWT signedJWT = SignedJWT.parse(token);
+        return signedJWT.getJWTClaimsSet().getSubject();
     }
 
     public boolean isTokenValid(String token) {
         return tokenRepo.existsByToken(token);
     }
 
-    public boolean checkToken(String token) throws AppException, JOSEException {
+    public boolean checkToken(String token) throws AppException {
         verifyToken(token);
         return true;
     }
@@ -67,33 +83,34 @@ public class TokenService {
             SignedJWT signedJWT = SignedJWT.parse(token);
             Date expiryTime =   signedJWT.getJWTClaimsSet().getExpirationTime();
             boolean verified = signedJWT.verify(verifier);
-            if(!verified || expiryTime.after(new Date())){
+            if(!verified || expiryTime.before(new Date())){
                 throw new AppException(ErrorCode.NOT_AUTHENTICATED);
             }
-//            if (invalidatedToken.existsById(signedJWT.getJWTClaimsSet().getJWTID())){
-//                throw new AppException(ErrorCode.NOT_AUTHENTICATED);
-//            }
-//            else{
-//
-//            }
             return signedJWT;
         } catch (Exception e){
             throw  new AppException(ErrorCode.NOT_AUTHENTICATED);
         }
     }
 
-    public String generateRefreshToken(User user) throws AppException {
-        return "";
+    public String generateRefreshToken() {
+        return UUID.randomUUID().toString();
     }
-
-    public String generateToken(UserResponse user, boolean isRefresh) throws JOSEException {
+    public Token generateToken(UserResponse user) throws JOSEException {
+        return Token.builder()
+                .token(generateTokenString(user))
+                .expiry_time(Date.from(Instant.now().plus(15*24*60*60, ChronoUnit.MILLIS)))
+                .refreshToken(generateRefreshToken())
+                .refresh_expiry_time(Date.from(Instant.now().plus(30*24*60*60, ChronoUnit.MILLIS)))
+                .build();
+    }
+    public String generateTokenString(UserResponse user) throws JOSEException {
         JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.HS512);
         String roleScope = buildRole(user.getRoles());
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
                 .subject(user.getId())
                 .issuer("HTShop")
                 .issueTime(new Date())
-                .expirationTime(Date.from(Instant.now().plus(1, ChronoUnit.HOURS))) // Adjust as needed
+                .expirationTime(Date.from(Instant.now().plus(15*24*60*60, ChronoUnit.MILLIS))) // Adjust as needed
                 .jwtID(UUID.randomUUID().toString())
                 .claim("scope", roleScope)
                 .build();
@@ -109,4 +126,5 @@ public class TokenService {
         }
         return joiner.toString();
     }
+
 }
