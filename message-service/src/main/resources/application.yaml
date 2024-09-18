@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: message-service
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: test
+
+server:
+  port: 8086
+  servlet:
+    context-path: /message
+
