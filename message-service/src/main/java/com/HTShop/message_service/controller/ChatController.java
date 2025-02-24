@@ -27,7 +27,7 @@ public class ChatController {
     @SendTo("/topic/receive")
     public void createChat(@Payload MessageRequest request){
         MessageResponse response = chatService.sendMessage(request);
-        simpMessagingTemplate.convertAndSend("/topic/receive/" + request.getChatId(), response);
+        simpMessagingTemplate.convertAndSend("/chat/receive/" + request.getChatId(), response);
     }
 //    @SendTo("/topic/receive")
 //    public MessageResponse createChat(@Payload MessageRequest request){
