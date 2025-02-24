@@ -37,7 +37,7 @@ public class SecurityConfig {
     private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, HttpSecurity httpSecurity) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(request ->
                 request.requestMatchers(publicUrl).permitAll()
                                 .anyRequest().authenticated());
@@ -47,13 +47,13 @@ public class SecurityConfig {
 //                                        userInfo.userService(new DefaultOAuth2UserService())
 //                                                )
 //                );
-        httpSecurity.oauth2ResourceServer(oauth2->
+        http.oauth2ResourceServer(oauth2->
                 oauth2.jwt(jwtConfigurer ->
                         jwtConfigurer.decoder(customJwtDecoder)
                                 .jwtAuthenticationConverter(jwtAuthenticationConverter()))
                         .authenticationEntryPoint((jwtAuthenticationEntryPoint))
         ).csrf(csrf -> csrf.disable());
-        return httpSecurity.build();
+        return http.build();
     }
 
     @Bean
@@ -63,7 +63,6 @@ public class SecurityConfig {
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
         return jwtAuthenticationConverter;
-
     }
 
     @Bean
@@ -74,7 +73,6 @@ public class SecurityConfig {
                 .build();
         jwtDecoder.setJwtValidator(JwtValidators.createDefaultWithIssuer(signerKey));
         return jwtDecoder;
-
     }
 
     @Bean

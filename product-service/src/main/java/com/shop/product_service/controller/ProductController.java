@@ -53,7 +53,6 @@ public class ProductController {
                 .build();
     }
 
-
     @GetMapping("/product/all")
     public ApiResponse<List<ProductResponse>> getAllProducts() throws AppException {
         return  ApiResponse.<List<ProductResponse>>builder()

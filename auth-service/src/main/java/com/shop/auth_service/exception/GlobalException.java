@@ -16,7 +16,7 @@ public class GlobalException {
         ErrorCode errorCode = ErrorCode.ACCESSDENIED;
         return ResponseEntity.status(errorCode.getHttpStatusCode())
                 .body(ApiResponse.builder()
-                        .code(errorCode.getCode())
+                                  .code(errorCode.getCode())
                         .build());
     }
 

@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.news.api_gateway.dto.ApiResponse;
 import com.news.api_gateway.service.AuthService;
 import lombok.experimental.NonFinal;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
@@ -24,7 +23,6 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-@Slf4j
 @Component
 public class AuthenticationFilter implements GlobalFilter, Ordered {
     @Autowired
@@ -32,9 +30,7 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
     @Autowired
     ObjectMapper objectMapper;
     @NonFinal
-    private String[] publicEndpoint = {
-            "/auth/**"
-    };
+    private String[] publicEndpoint = {"/auth/**"};
     @NonFinal
     @Value("${app.api-prefix}")
     private String apiPrefix;
@@ -73,7 +69,6 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
             body = objectMapper.writeValueAsString(apiResponse);
 
         } catch (JsonProcessingException e) {
-            log.error("Error serializing response", e);
             body = "{\"code\":1401,\"message\":\"Unauthenticated\"}";
         }
         response.setStatusCode(HttpStatus.UNAUTHORIZED);

@@ -17,7 +17,6 @@ public class AuthController {
     UserService userService;
     @PostMapping("/login")
     public BasicResponse login(@RequestBody BasicRequest request) {
-        System.err.println("This is login");
         userService.create(request.getUserid());
         return BasicResponse.builder()
                 .ok(true)
@@ -26,7 +25,6 @@ public class AuthController {
     }
     @GetMapping("/all/{userid}")
     public List<String> getAllMessager(@PathVariable String userid){
-        System.err.println("This is all messager");
         return userService.getAllUser(userid);
     }
 }

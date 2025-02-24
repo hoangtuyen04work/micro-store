@@ -10,7 +10,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ChatResponse {
-    private String id;
+    private String chatId;
     private String user1Id;
     private String user2Id;
     private List<MessageResponse> messageResponses;

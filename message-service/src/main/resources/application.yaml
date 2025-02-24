@@ -11,4 +11,16 @@ server:
   port: 8086
   servlet:
     context-path: /message
+jwt:
+  signerKey: "d6ad4b004a0e52c86afdc7f283ed735f906736c05d8be178606f62efaabe11007af47f17e1b4c335f51cf52887d6abced19fb16903dadcad6106cda1474bc26a"
+
+websocket:
+  groupId:
+    return: "group-return"
+    borrow: "group-borrow"
+  simpleBroker: "/topic"
+  prefix: "/lib"
+  endpoint: "/ws"
+  sendTo: "/topic/receiver"
+  mapping: "/send"
 

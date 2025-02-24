@@ -53,7 +53,6 @@ public class NotificationService {
                     .messageId(response.getMessageId())
                     .build();
             sendEmailRepo.save(sendEmail);
-            System.err.println("SendEmailController: notifyWelcome");
             return response;
         } catch (Exception e) {
             System.err.println(e);

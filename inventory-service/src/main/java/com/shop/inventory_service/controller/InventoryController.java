@@ -67,7 +67,7 @@ public class InventoryController {
                                                      @RequestParam(required = false) String code,
                                                      @RequestParam(defaultValue = "1") Integer page,
                                                      @RequestParam(defaultValue =  "5") Integer size,
-                                                     @RequestParam(required = false) String productId){
+                                                     @RequestParam(required = false) String productId) {
         Pageable pageable = PageRequest.of(page - 1, size);
         return ApiResponse.<PageResponse<InventoryResponse>>builder()
                 .data(inventoryService.find(id, name, category, quantity, quantityStart, quantityEnd,

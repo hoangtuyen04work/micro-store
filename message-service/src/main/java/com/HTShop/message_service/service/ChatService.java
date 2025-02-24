@@ -39,7 +39,7 @@ public class ChatService {
         return ChatResponse.builder()
                 .user1Id(request.getUser1Id())
                 .user2Id(request.getUser2Id())
-                .id(aChat.getId())
+                .chatId(aChat.getChatId())
                 .build();
     }
 
@@ -63,9 +63,9 @@ public class ChatService {
             }
 
             // Lưu lại bản cập nhật cuộc trò chuyện
+            achat.setChatAt(LocalDateTime.now());
             chatRepo.save(achat);
         }
-        // Chuyển đổi tin nhắn thành dạng phản hồi
         return toMessageResponse(message);
     }
 
@@ -85,7 +85,7 @@ public class ChatService {
         }
         List<MessageResponse> responses  = toListMessageResponse(aChat.getMessages());
         return  ChatResponse.builder()
-                .id(aChat.getId())
+                .chatId(aChat.getChatId())
                 .user1Id(aChat.getUser1Id())
                 .user2Id(aChat.getUser2Id())
                 .messageResponses(responses)
@@ -93,6 +93,7 @@ public class ChatService {
     }
     private MessageResponse toMessageResponse(Message messages){
         return MessageResponse.builder()
+
                 .content(messages.getContent())
                 .time(messages.getTime())
                 .id(messages.getId())
